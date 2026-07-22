@@ -450,16 +450,7 @@ export function CRDashboardView({ onPublishLecture, lecturesByDay, showToast, on
           throw new Error("No audio content found. Please record or upload a valid, non-empty audio lecture.");
         }
 
-        // Limit the raw audio size to 4MB to protect against network transfer bottlenecks and Nginx 413 limits.
-        // A 4MB WebM/Opus audio file contains up to 15-20 minutes of lecture content, which is perfect for BAMS summaries.
-        let processedBlob = blob;
-        const maxBytes = 4 * 1024 * 1024;
-        if (blob.size > maxBytes) {
-          console.log(`[PRE-FLIGHT] Truncating large audio file (${(blob.size / (1024 * 1024)).toFixed(1)} MB) to first 4 MB for network safety.`);
-          processedBlob = blob.slice(0, maxBytes, blob.type);
-        }
-
-        const audioBase64 = await blobToBase64(processedBlob);
+        const audioBase64 = await blobToBase64(blob);
 
         updateTaskStage("transcribing");
         await new Promise((r) => setTimeout(r, 1400));

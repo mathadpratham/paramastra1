@@ -421,12 +421,10 @@ async function startServer() {
     retries = 2,
     delayMs = 1500
   ): Promise<any> {
-    const requestedModel = params.model || "gemini-3.5-flash";
-    let primaryModel = requestedModel;
-    if (requestedModel === "gemini-2.5-flash" || requestedModel === "gemini-2.0-flash" || requestedModel === "gemini-1.5-flash") {
-      primaryModel = "gemini-3.5-flash";
-    }
-    const modelsToTry = [primaryModel, "gemini-3.1-flash-lite"];
+    const requestedModel = params.model || "gemini-2.5-flash";
+    const modelsToTry = [requestedModel, "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"].filter(
+      (value, index, self) => self.indexOf(value) === index
+    );
     let lastError: any = null;
 
     for (const modelName of modelsToTry) {
@@ -500,7 +498,7 @@ async function startServer() {
       try {
         console.log(`[GEMINI ART] Enhancing art prompt for ${subject} - ${topic}`);
         const response = await generateContentWithRetry(client, {
-          model: "gemini-3.5-flash",
+          model: "gemini-2.5-flash",
           contents: `You are an artistic director. Write a gorgeous 15-20 word image generation description (no text elements, no labels, no human faces unless relevant, purely photographic or artistic) for this BAMS educational lecture card about Subject: "${subject}", Topic: "${topic}". Recommended core theme: ${rawPromptBase}. Make it atmospheric and clear. Do not wrap in quotes or codeblocks.`,
         });
         if (response && response.text) {
@@ -1773,19 +1771,23 @@ CRITICAL TRUST AND AUTHENTICITY DIRECTIVES (Zero-Tolerance for Guessing, Hypothe
 
 Respond ONLY in JSON matching the response schema. Primary Language hint: ${language}.`;
 
+      const rawBase64 = String(audioBase64).replace(/^data:audio\/[a-zA-Z0-9-+.]+;base64,/, "").trim();
+
+      const fullSystemGuide = `${classContext ? classContext + "\n\n" : ""}${systemGuide}`;
+
       const audioPart = {
         inlineData: {
           mimeType: cleanMimeType,
-          data: audioBase64,
+          data: rawBase64,
         },
       };
 
       try {
         const response = await generateContentWithRetry(client, {
-          model: "gemini-3.5-flash",
+          model: "gemini-2.5-flash",
           contents: {
             parts: [
-              { text: systemGuide },
+              { text: fullSystemGuide },
               audioPart
             ]
           },
@@ -1837,7 +1839,18 @@ Respond ONLY in JSON matching the response schema. Primary Language hint: ${lang
           cleanedText = cleanedText.replace(/^```(?:json)?/, "").replace(/```$/, "").trim();
         }
 
-        const parsed = JSON.parse(cleanedText);
+        let parsed: any;
+        try {
+          parsed = JSON.parse(cleanedText);
+        } catch {
+          const match = cleanedText.match(/\{[\s\S]*\}/);
+          if (match) {
+            parsed = JSON.parse(match[0]);
+          } else {
+            throw new Error("Invalid JSON structure returned by Gemini");
+          }
+        }
+
         const generatedUrl = await generateAIPictureUrl(parsed.subject, parsed.topic);
         res.json({
           subject: parsed.subject,
@@ -1932,7 +1945,7 @@ Would you like more questions to practice?`;
       console.log(`Processing AI Tutor query for message: "${message.slice(0, 80)}..."`);
       try {
         const response = await generateContentWithRetry(client, {
-          model: "gemini-3.5-flash",
+          model: "gemini-2.5-flash",
           contents: message,
           config: {
             systemInstruction: "You are an expert Ayurveda BAMS medical tutor assisting study questions from first year subjects (Rachana Sharir, Kriya Sharir, Samhita Adyayan, Sanskritam, Padartha Vijnana). Keep responses extremely high-yield, structured in clear Bullet points, clean, and professional. Mention reference names from texts like Charaka Samhita and Sushruta Samhita where helpful."
