@@ -1,0 +1,25 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    match /classes/{classCode} {
+      allow read, write: if true;
+    }
+
+    match /lectures/{classCode} {
+      allow read, write: if true;
+    }
+
+    match /diaries/{classCode} {
+      allow read, write: if true;
+    }
+  }
+}

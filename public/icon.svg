@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Space Slate Gradient -->
+    <radialGradient id="bg-grad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#161622" />
+      <stop offset="100%" stop-color="#0a0a0f" />
+    </radialGradient>
+    
+    <!-- Ayurvedic Golden Healing Gradient -->
+    <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffe29d" />
+      <stop offset="50%" stop-color="#cca43b" />
+      <stop offset="100%" stop-color="#8a6400" />
+    </linearGradient>
+
+    <!-- Divine Healing Aura Radial Glow -->
+    <radialGradient id="glow" cx="50%" cy="50%" r="35%">
+      <stop offset="0%" stop-color="#cca43b" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#cca43b" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Subtle Drop Shadow -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <drop-shadow dx="0" dy="8" stdDeviation="10" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+
+  <!-- Base Rounded Maskable Background -->
+  <rect width="512" height="512" rx="102" fill="url(#bg-grad)" />
+
+  <!-- Inner Concentric Sacred Circles (Mandala-style) -->
+  <circle cx="256" cy="256" r="236" fill="none" stroke="url(#gold-grad)" stroke-width="2" stroke-opacity="0.25" />
+  <circle cx="256" cy="256" r="226" fill="none" stroke="url(#gold-grad)" stroke-width="4" stroke-opacity="0.6" stroke-dasharray="10 12" />
+  <circle cx="256" cy="256" r="190" fill="none" stroke="url(#gold-grad)" stroke-width="1" stroke-opacity="0.15" />
+  
+  <!-- Outer Radial Pulse Glow -->
+  <circle cx="256" cy="256" r="170" fill="url(#glow)" />
+
+  <!-- The "Astra" Shield / Geometry (Symmetry + Protection) -->
+  <g filter="url(#shadow)">
+    <!-- Diagonal cross diamonds (Sanskrit Wisdom directions) -->
+    <polygon points="256,60 286,226 452,256 286,286 256,452 226,286 60,256 226,226" fill="none" stroke="url(#gold-grad)" stroke-width="3" stroke-opacity="0.4" />
+    
+    <!-- Outer concentric hexagon rotated -->
+    <polygon points="256,90 399,173 399,339 256,422 113,339 113,173" fill="none" stroke="url(#gold-grad)" stroke-width="2" stroke-opacity="0.2" />
+
+    <!-- Lotus Petals (Anatomy representation of Ayurveda / Prana / Health) -->
+    <!-- Base center circle -->
+    <circle cx="256" cy="256" r="48" fill="#12121e" stroke="url(#gold-grad)" stroke-width="3" />
+    
+    <!-- Top Petal -->
+    <path d="M256,256 C240,200 240,130 256,110 C272,130 272,200 256,256 Z" fill="url(#gold-grad)" opacity="0.9" />
+    <!-- Bottom Petal -->
+    <path d="M256,256 C240,312 240,382 256,402 C272,382 272,312 256,256 Z" fill="url(#gold-grad)" opacity="0.9" />
+    <!-- Right Petal -->
+    <path d="M256,256 C312,240 382,240 402,256 C382,272 312,272 256,256 Z" fill="url(#gold-grad)" opacity="0.9" />
+    <!-- Left Petal -->
+    <path d="M256,256 C200,240 130,240 110,256 C130,272 200,272 256,256 Z" fill="url(#gold-grad)" opacity="0.9" />
+
+    <!-- Intermediate Flowers Petals -->
+    <path d="M256,256 C210,210 160,160 152,152 C160,160 210,210 256,256 Z" stroke="url(#gold-grad)" stroke-width="2" fill="none" opacity="0.7" />
+    <path d="M256,256 C302,210 352,160 360,152 C352,160 302,210 256,256 Z" stroke="url(#gold-grad)" stroke-width="2" fill="none" opacity="0.7" />
+    <path d="M256,256 C210,302 160,352 152,360 C160,352 210,302 256,256 Z" stroke="url(#gold-grad)" stroke-width="2" fill="none" opacity="0.7" />
+    <path d="M256,256 C302,302 352,352 360,360 C352,352 302,302 256,256 Z" stroke="url(#gold-grad)" stroke-width="2" fill="none" opacity="0.7" />
+
+    <!-- Center Trishula / Flame of Intelligence (Saraswati Mantra Wisdom) -->
+    <!-- Triple flames burning in the center of ayurvedic consciousness -->
+    <path d="M256,230 C252,218 250,205 256,192 C262,205 260,218 256,230 Z" fill="#ffe29d" />
+    <path d="M246,235 C242,225 240,215 246,204 C250,215 248,225 246,235 Z" fill="#cca43b" opacity="0.8" />
+    <path d="M266,235 C262,225 260,215 266,204 C270,215 268,225 266,235 Z" fill="#cca43b" opacity="0.8" />
+
+    <!-- Ayurvedic Leaf / Drops of nectar (Amrita) at bottom -->
+    <path d="M256,275 C250,285 244,295 244,302 C244,308 249,313 256,313 C263,313 268,308 268,302 C268,295 262,285 256,275 Z" fill="url(#gold-grad)" />
+  </g>
+  
+  <!-- Subtle tech aesthetic corners -->
+  <g stroke="url(#gold-grad)" stroke-width="1.5" stroke-opacity="0.4" fill="none">
+    <path d="M 40,110 L 40,40 L 110,40" />
+    <path d="M 472,110 L 472,40 L 402,40" />
+    <path d="M 40,402 L 40,472 L 110,472" />
+    <path d="M 472,402 L 472,472 L 402,472" />
+  </g>
+</svg>

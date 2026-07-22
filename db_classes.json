@@ -1,0 +1,97 @@
+{
+  "4668": {
+    "students": [
+      {
+        "userId": "tsc68",
+        "password": "1111",
+        "joinedAt": 1781020580102,
+        "collegeName": "AAMC Moodbidari",
+        "batchYear": "1st Year (2026)",
+        "rollNumber": "68",
+        "name": "Tsc"
+      },
+      {
+        "batchYear": "1st Year (2026)",
+        "collegeName": "AAMC Moodbidari",
+        "password": "2222",
+        "joinedAt": 1781021686426,
+        "userId": "sun67",
+        "name": "Sun",
+        "rollNumber": "67"
+      },
+      {
+        "rollNumber": "69",
+        "name": "Man",
+        "password": "5555",
+        "joinedAt": 1781021789079,
+        "userId": "man69",
+        "batchYear": "1st Year (2026)",
+        "collegeName": "AAMC Moodbidari"
+      },
+      {
+        "password": "virat@18",
+        "joinedAt": 1783668733495,
+        "userId": "kna25",
+        "batchYear": "1st year",
+        "collegeName": "AAMC Moodbidari",
+        "rollNumber": "25",
+        "whatsappNumber": "9380699076",
+        "name": "K Nandeesh"
+      },
+      {
+        "batchYear": "1st year",
+        "collegeName": "AAMC Moodbidari",
+        "joinedAt": 1783671473775,
+        "password": "Vishnu@2003",
+        "userId": "vis76",
+        "whatsappNumber": "8125708767",
+        "name": "Vishnu warad",
+        "rollNumber": "76"
+      },
+      {
+        "whatsappNumber": "7411514817",
+        "name": "Ritika S Karadi",
+        "rollNumber": "51",
+        "batchYear": "1st year",
+        "collegeName": "AAMC Moodbidari",
+        "joinedAt": 1784279473155,
+        "password": "ritika29",
+        "userId": "rit51"
+      }
+    ],
+    "crUserId": "pracr",
+    "classCode": "4668",
+    "batchYear": "1st Year (2026)",
+    "collegeName": "AAMC Moodbidari",
+    "crName": "Pratham M",
+    "crPassword": "3333"
+  },
+  "4678": {
+    "students": [
+      {
+        "password": "2222",
+        "joinedAt": 1781021047056,
+        "userId": "ayu01",
+        "batchYear": "1st Year (2026)",
+        "collegeName": "AAMC Moodbidari",
+        "rollNumber": "01",
+        "name": "Ayush Kumar"
+      },
+      {
+        "password": "2222",
+        "joinedAt": 1781021047057,
+        "userId": "sun67",
+        "batchYear": "1st Year (2026)",
+        "collegeName": "AAMC Moodbidari",
+        "rollNumber": "67",
+        "name": "Sun"
+      }
+    ],
+    "crUserId": "pra67",
+    "collegeName": "AAMC Moodbidari",
+    "batchYear": "1st Year (2026)",
+    "classCode": "4678",
+    "crPassword": "3333",
+    "crName": "Pra67 CR"
+  }
+}

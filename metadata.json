@@ -1,0 +1,10 @@
+{
+  "name": "Paramastra",
+  "description": "Instagram-style study feed and AI lecture audio transcription/analysis for Ayurveda BAMS students.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

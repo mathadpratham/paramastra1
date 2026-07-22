@@ -1,0 +1,57 @@
+{
+  "entities": {
+    "Classroom": {
+      "title": "Classroom",
+      "description": "Represents an academic classroom space with students and CR profile",
+      "type": "object",
+      "properties": {
+        "classCode": { "type": "string" },
+        "crName": { "type": "string" },
+        "collegeName": { "type": "string" },
+        "batchYear": { "type": "string" },
+        "crUserId": { "type": "string" },
+        "crPassword": { "type": "string" },
+        "students": { "type": "array" }
+      },
+      "required": ["classCode", "crName", "collegeName", "batchYear"]
+    },
+    "Lectures": {
+      "title": "Lectures",
+      "description": "Weekly lecture schedule and study recordings for a class",
+      "type": "object",
+      "properties": {
+        "classCode": { "type": "string" },
+        "lecturesByDay": { "type": "object" }
+      },
+      "required": ["classCode"]
+    },
+    "DiaryEntry": {
+      "title": "DiaryEntry",
+      "description": "A single BAMS learning diary entry logged by students",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "studentId": { "type": "string" },
+        "studentName": { "type": "string" },
+        "date": { "type": "string" },
+        "subject": { "type": "string" },
+        "content": { "type": "string" }
+      },
+      "required": ["id", "studentName", "content"]
+    }
+  },
+  "firestore": {
+    "classes/{classCode}": {
+      "schema": "Classroom",
+      "description": "Information about registered class codes and rosters"
+    },
+    "lectures/{classCode}": {
+      "schema": "Lectures",
+      "description": "Lectures schedule synced weekly per class"
+    },
+    "diaries/{classCode}": {
+      "schema": "DiaryEntry",
+      "description": "Student daily diaries logged per class"
+    }
+  }
+}
