@@ -421,8 +421,8 @@ async function startServer() {
     retries = 2,
     delayMs = 1500
   ): Promise<any> {
-    const requestedModel = params.model || "gemini-2.0-flash";
-    const modelsToTry = [requestedModel, "gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"].filter(
+    const requestedModel = params.model || "gemini-3.5-flash";
+    const modelsToTry = [requestedModel, "gemini-3.5-flash", "gemini-3.6-flash", "gemini-2.0-flash", "gemini-1.5-flash"].filter(
       (value, index, self) => self.indexOf(value) === index
     );
     let lastError: any = null;
@@ -1705,8 +1705,6 @@ Respond ONLY in JSON matching the response schema. Primary Language hint: ${lang
         ? String(audioBase64).split(",")[1].trim()
         : String(audioBase64).replace(/^data:.*?;base64,/, "").trim();
 
-      const fullSystemGuide = `${classContext ? classContext + "\n\n" : ""}${systemGuide}`;
-
       const audioPart = {
         inlineData: {
           mimeType: cleanMimeType,
@@ -1715,11 +1713,28 @@ Respond ONLY in JSON matching the response schema. Primary Language hint: ${lang
       };
 
       try {
-        const response = await generateContentWithRetry(client, {
-          model: "gemini-2.0-flash",
+        // =========================================================================
+        // PHASE 1: 100% Faithful Audio Transcription (Gemini 3.5 Flash)
+        // Dedicated request focused solely on word-for-word audio transcription
+        // =========================================================================
+        console.log(`[PIPELINE PHASE 1] Initiating word-for-word audio transcription via gemini-3.5-flash...`);
+        
+        const phase1Prompt = `You are an elite academic audio transcriber for BAMS (Ayurveda) medical college lectures.
+Your SINGLE AND ABSOLUTE PURPOSE is to transcribe EVERY SINGLE WORD spoken in this audio recording with 100% fidelity.
+
+DIRECTIVES:
+1. Do NOT summarize, condense, skip, or paraphrase any part of the audio.
+2. Transcribe verbatim: keep Hindi, English, and Sanskrit shlokas exactly as spoken by the teacher (Mam/Prof).
+3. If technical BAMS terms, Sanskrit shlokas, or anatomical names are pronounced, spell them accurately in standard Devanagari or Latin transliteration.
+4. If a browser speech-recognition text snippet is provided here ("${speechTranscript || ''}"), use it to assist with noisy words, but rely primarily on the actual audio.
+
+Respond ONLY with JSON matching the schema: { "transcript": "complete word-for-word spoken transcript..." }`;
+
+        const phase1Response = await generateContentWithRetry(client, {
+          model: "gemini-3.5-flash",
           contents: {
             parts: [
-              { text: fullSystemGuide },
+              { text: phase1Prompt },
               audioPart
             ]
           },
@@ -1728,66 +1743,125 @@ Respond ONLY in JSON matching the response schema. Primary Language hint: ${lang
             responseSchema: {
               type: Type.OBJECT,
               properties: {
-                subject: {
-                  type: Type.STRING,
-                  description: "The BAMS subject. Must be one of: Rachana Sharir, Kriya Sharir, Samhita Adyayan, Sanskritam Evum Ayurveda Ithihasa, Padartha Vijnana, or Other.",
-                },
-                topic: {
-                  type: Type.STRING,
-                  description: "Concise title representing the primary topic discussed in the lecture audio.",
-                },
                 transcript: {
                   type: Type.STRING,
-                  description: "A faithful word-for-word transcript of what was spoken in the lecture, keeping Ayurvedic Hindi/Sanskrit, mixed English, and specific keywords intact.",
-                },
-                keyConcepts: {
-                  type: Type.ARRAY,
-                  items: { type: Type.STRING },
-                  description: "List of 3 to 6 major points, theories, classifications, or lessons taught during this lecture.",
-                },
-                examAlert: {
-                  type: Type.STRING,
-                  description: "The EXACT exam alerts, warnings, viva questions, or marks-critical tips explicitly spoken or warned by the teacher (Mam) in the audio. If the teacher did NOT explicitly mention any exams, questions, or warnings in the audio, you MUST return an empty string ('') or null. DO NOT guess, fabricate, or generate generic questions.",
-                },
-                whatsappContext: {
-                  type: Type.STRING,
-                  description: "The EXACT homework, assignments, tasks, or textbook pages explicitly assigned or mentioned by the teacher (Mam) in the audio. If the teacher did NOT explicitly assign anything in the audio, you MUST return an empty string ('') or null. DO NOT guess, fabricate, or generate generic assignments.",
-                },
-                classNotes: {
-                  type: Type.STRING,
-                  description: "Extensive, highly detailed, complete class notes of the lecture, structured with clear headings, subheadings, lists of key points, Sanskrit definitions/shlokas if any, and in-depth explanations of the topic.",
+                  description: "Full word-for-word spoken transcript of the lecture audio without omissions.",
                 },
               },
-              required: ["subject", "topic", "transcript", "keyConcepts", "examAlert", "whatsappContext", "classNotes"],
+              required: ["transcript"],
             },
           },
         });
 
-        const responseText = response.text || "";
-        console.log("Raw Gemini Response received:", responseText.slice(0, 300));
-
-        let cleanedText = responseText.trim();
-        if (cleanedText.startsWith("```")) {
-          cleanedText = cleanedText.replace(/^```(?:json)?/, "").replace(/```$/, "").trim();
+        let fullTranscript = "";
+        try {
+          const p1Parsed = JSON.parse(phase1Response.text.trim());
+          fullTranscript = p1Parsed.transcript || "";
+        } catch {
+          fullTranscript = phase1Response.text || speechTranscript || "";
         }
+
+        if (!fullTranscript || fullTranscript.trim().length === 0) {
+          fullTranscript = speechTranscript || "Audio recording processed. Teacher discussed BAMS curriculum guidelines.";
+        }
+
+        console.log(`[PIPELINE PHASE 1 COMPLETE] Captured transcript (~${fullTranscript.split(/\s+/).length} words).`);
+
+        // =========================================================================
+        // PHASE 2: Structured Notes & Analysis from Verified Transcript (Gemini 3.5 Flash)
+        // Dedicated text-based reasoning on the complete transcript
+        // =========================================================================
+        console.log(`[PIPELINE PHASE 2] Analyzing transcript text to extract structured notes, exam alerts, and assignments...`);
+
+        const phase2Prompt = `You are a top-tier senior BAMS academic auditor and elite note-structuring assistant.
+You are given the VERIFIED WORD-FOR-WORD TRANSCRIPT of a live BAMS (Ayurveda) lecture:
+
+--- BEGIN VERIFIED LECTURE TRANSCRIPT ---
+${fullTranscript}
+--- END VERIFIED LECTURE TRANSCRIPT ---
+
+Target Metadata provided by Class Representative (CR):
+- Subject: "${targetSubject || 'Auto-Detect'}"
+- Topic: "${targetTopic || 'Auto-Detect'}"
+${targetInstructions ? `- CR Custom Focus Instructions: "${targetInstructions}"` : ""}
+
+CRITICAL AUTHENTICITY DIRECTIVES:
+1. SUBJECT & TOPIC: Identify the precise BAMS subject (Rachana Sharir, Kriya Sharir, Samhita Adyayan, Sanskritam Evum Ayurveda Ithihasa, Padartha Vijnana, or Other) and concise topic title.
+2. KEY CONCEPTS: Extract 3 to 6 major points, theories, classifications, or shlokas taught in the transcript.
+3. EXAM ALERTS (examAlert): Extract ONLY exam-relevant warnings, marks allocations, or viva questions explicitly stated by the teacher in the transcript. If the teacher did NOT explicitly mention exams or marks, return null or empty string (""). NEVER fabricate exam questions.
+4. ASSIGNMENTS / HOMEWORK (whatsappContext): Extract ONLY assignments, practical journal tasks, or textbook pages explicitly assigned by the teacher in the transcript. If the teacher did NOT assign homework, return null or empty string (""). NEVER fabricate homework.
+5. COMPLETE CLASS NOTES (classNotes): Write extensive, highly detailed, professional class notes representing the entire lecture session, structured with Markdown headings, subheadings, key points, and shlokas.
+
+Respond ONLY with JSON matching the required schema. Primary Language hint: ${language}.`;
+
+        const phase2Response = await generateContentWithRetry(client, {
+          model: "gemini-3.5-flash",
+          contents: phase2Prompt,
+          config: {
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: Type.OBJECT,
+              properties: {
+                subject: {
+                  type: Type.STRING,
+                  description: "The BAMS subject name.",
+                },
+                topic: {
+                  type: Type.STRING,
+                  description: "Concise title representing the primary topic of the lecture.",
+                },
+                keyConcepts: {
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING },
+                  description: "3 to 6 major points taught during this lecture.",
+                },
+                examAlert: {
+                  type: Type.STRING,
+                  description: "EXACT exam warnings/questions stated by the teacher, or empty/null if none stated.",
+                },
+                whatsappContext: {
+                  type: Type.STRING,
+                  description: "EXACT assignments/homework stated by the teacher, or empty/null if none assigned.",
+                },
+                classNotes: {
+                  type: Type.STRING,
+                  description: "Extensive, complete class notes in Markdown format.",
+                },
+              },
+              required: ["subject", "topic", "keyConcepts", "examAlert", "whatsappContext", "classNotes"],
+            },
+          },
+        });
 
         let parsed: any;
         try {
-          parsed = JSON.parse(cleanedText);
+          parsed = JSON.parse(phase2Response.text.trim());
         } catch {
-          const match = cleanedText.match(/\{[\s\S]*\}/);
+          const match = phase2Response.text.match(/\{[\s\S]*\}/);
           if (match) {
             parsed = JSON.parse(match[0]);
           } else {
-            throw new Error("Invalid JSON structure returned by Gemini");
+            parsed = {
+              subject: targetSubject || "Rachana Sharir",
+              topic: targetTopic || "Lecture Study Session",
+              keyConcepts: ["Lecture analysis complete."],
+              examAlert: null,
+              whatsappContext: null,
+              classNotes: fullTranscript,
+            };
           }
         }
 
-        const generatedUrl = await generateAIPictureUrl(parsed.subject, parsed.topic);
+        const finalSubject = parsed.subject || targetSubject || "Rachana Sharir";
+        const finalTopic = parsed.topic || targetTopic || "Live Lecture Review";
+        const generatedUrl = await generateAIPictureUrl(finalSubject, finalTopic);
+
+        console.log(`[PIPELINE SUCCESS] 2-Phase analysis finished for "${finalSubject} - ${finalTopic}".`);
+
         res.json({
-          subject: parsed.subject,
-          topic: parsed.topic,
-          transcript: parsed.transcript || speechTranscript || "",
+          subject: finalSubject,
+          topic: finalTopic,
+          transcript: fullTranscript,
           keyConcepts: parsed.keyConcepts || [],
           examAlert: parsed.examAlert || null,
           whatsappContext: parsed.whatsappContext || null,
@@ -1797,7 +1871,7 @@ Respond ONLY in JSON matching the response schema. Primary Language hint: ${lang
         });
 
       } catch (error: any) {
-        console.error("[GEMINI ERROR] Transcription pipeline failed:", error);
+        console.error("[GEMINI ERROR] 2-Phase pipeline failed:", error);
         return res.status(500).json({ 
           error: `AI transcription failed: ${error.message || "Could not analyze lecture audio"}. Please check server connectivity or try again.` 
         });

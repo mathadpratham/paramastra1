@@ -587,18 +587,18 @@ export function CRDashboardView({ onPublishLecture, lecturesByDay, showToast, on
       
       let stream;
       try {
-        console.log("[Mic] Attempting high-fidelity audio stream acquisition...");
+        console.log("[Mic] Acquiring raw 16kHz speech-optimized audio stream for Gemini AI...");
         stream = await navigator.mediaDevices.getUserMedia({
           audio: {
             channelCount: { ideal: 1 },
-            sampleRate: { ideal: 44100 },
-            echoCancellation: { ideal: true },
-            noiseSuppression: { ideal: true },
-            autoGainControl: { ideal: true },
+            sampleRate: { ideal: 16000 },
+            echoCancellation: { ideal: false }, // Prevent browser voice suppression gating
+            noiseSuppression: { ideal: false }, // Let Gemini 3.5 native audio handle background room acoustics
+            autoGainControl: { ideal: true },    // Prevent volume clipping on loud Sanskrit recitations
           },
         });
       } catch (constraintsErr) {
-        console.warn("[Mic] High-fidelity constraints rejected, falling back to standard audio stream:", constraintsErr);
+        console.warn("[Mic] Speech-optimized constraints rejected, falling back to standard audio stream:", constraintsErr);
         stream = await navigator.mediaDevices.getUserMedia({
           audio: true,
         });
