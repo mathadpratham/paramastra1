@@ -421,8 +421,8 @@ async function startServer() {
     retries = 2,
     delayMs = 1500
   ): Promise<any> {
-    const requestedModel = params.model || "gemini-2.5-flash";
-    const modelsToTry = [requestedModel, "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"].filter(
+    const requestedModel = params.model || "gemini-2.0-flash";
+    const modelsToTry = [requestedModel, "gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"].filter(
       (value, index, self) => self.indexOf(value) === index
     );
     let lastError: any = null;
@@ -1716,11 +1716,9 @@ Depending on the canonical commentaries of Sushruta and Charaka, the lecture bro
       } else if (cleanMimeType.includes("aac")) {
         cleanMimeType = "audio/aac";
       } else if (cleanMimeType.includes("m4a") || cleanMimeType.includes("mp4") || cleanMimeType.includes("x-m4a")) {
-        // Map containerized AAC/MP4 audio formats to "audio/aac", which Gemini inline ingestion supports perfectly
-        cleanMimeType = "audio/aac";
+        cleanMimeType = "audio/mp4";
       } else {
-        // Fallback for any other non-standard types to a standard type supported by Gemini
-        cleanMimeType = "audio/mpeg";
+        cleanMimeType = "audio/webm";
       }
 
       console.log(`Analyzing audio with Gemini. Size: ~${Math.round(audioBase64.length / 1024)} KB, Mime: ${cleanMimeType}, Lang: ${language}`);
@@ -1771,7 +1769,10 @@ CRITICAL TRUST AND AUTHENTICITY DIRECTIVES (Zero-Tolerance for Guessing, Hypothe
 
 Respond ONLY in JSON matching the response schema. Primary Language hint: ${language}.`;
 
-      const rawBase64 = String(audioBase64).replace(/^data:audio\/[a-zA-Z0-9-+.]+;base64,/, "").trim();
+      // Extract raw base64 data regardless of data URI scheme formatting
+      const rawBase64 = String(audioBase64).includes(",")
+        ? String(audioBase64).split(",")[1].trim()
+        : String(audioBase64).replace(/^data:.*?;base64,/, "").trim();
 
       const fullSystemGuide = `${classContext ? classContext + "\n\n" : ""}${systemGuide}`;
 
@@ -1784,7 +1785,7 @@ Respond ONLY in JSON matching the response schema. Primary Language hint: ${lang
 
       try {
         const response = await generateContentWithRetry(client, {
-          model: "gemini-2.5-flash",
+          model: "gemini-2.0-flash",
           contents: {
             parts: [
               { text: fullSystemGuide },

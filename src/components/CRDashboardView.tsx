@@ -654,17 +654,13 @@ export function CRDashboardView({ onPublishLecture, lecturesByDay, showToast, on
             peakingFilter.connect(lpFilter);
             lpFilter.connect(compressor);
 
-            // 6. Output to recording stream destination
+            // 6. Output to recording stream destination - Record hardware stream directly for max reliability
+            recordStream = stream;
+            activeRecordStreamRef.current = stream;
+
             const dest = ctx.createMediaStreamDestination();
             compressor.connect(dest);
-            // FIX: Record the pristine noise-suppressed, compressed stream from the Web Audio DSP node
-            recordStream = dest.stream;
-            activeRecordStreamRef.current = dest.stream;
 
-            // 6b. CRITICAL SAFARI/CHROME LAZY-EVALUATION WORKAROUND:
-            // WebKit will NOT process or pull audio data through createMediaStreamDestination()
-            // if there is no path leading to physical output (ctx.destination). We connect a branch
-            // through a zero-gain Node to keep the pipeline alive without playing feedback sound.
             const silenceGain = ctx.createGain();
             silenceGain.gain.setValueAtTime(0, ctx.currentTime);
             compressor.connect(silenceGain);
