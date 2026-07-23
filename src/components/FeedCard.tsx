@@ -1092,27 +1092,7 @@ export function FeedCard({ lecture, onSaveToggle, onDeleteClick, showToast, onUp
                 <div className="prose prose-sm dark:prose-invert max-w-none pt-2 pb-6">
                   {parseMarkdownToReact(
                     lecture.classNotes || 
-                    `# ${lecture.topic} - Class Lecture Notes
-*BAMS Course Curriculum - ${lecture.subject}*
-
-## Introduction
-Today's morning lecture focused extensively on the foundational theories, classical references, and contemporary insights on **${lecture.topic}**. The professor emphasized that a deep conceptual clarity of this topic is critical for both the theoretical exams and clinical diagnostics.
-
-## Foundational Principles & Ayurvedic Context
-- **Siddhanta (Doctrine):** In classical Ayurveda, ${lecture.topic} is considered a key element in restoring systemic balance and assessing patient constitution.
-- **Sanskrit Shlokas & Definitions:** 
-  > *तत्र शरीरं नाम चेतनाव्यधिष्ठानभूतं पञ्चमहाभूतविकारसमुदायात्मकं समयोगवाहि। (Charaka Samhita)*
-  The professor recited the core shlokas, urging the batch to write them down exactly as they appear in the commentaries.
-
-## Key Classifications & Anatomical/Physiological Details
-Depending on the canonical commentaries of Sushruta and Charaka, the lecture broke down ${lecture.topic} into these essential sub-categories:
-1. **Prathama (Primary stage):** Focuses on basic clinical characteristics and structural elements.
-2. **Dwitiya (Secondary transformations):** Relates to metabolic or anatomical connections with nearby organs/dhatus.
-3. **Tritiya (Clinical pathology):** When standard homeostatic parameters are breached.
-
-## NCISM High-Yield Clinical Highlights
-- Pay absolute attention to the structural diagrams of ${lecture.topic}. The professor noted that drawing clean, labelled charts in the answer papers guarantees maximum marks.
-- The distinction between normal physiology (Prakrita) and pathological deviation (Vaikrita) was demonstrated with clinical cases.`
+                    `# ${lecture.topic} - Class Lecture Notes\n*BAMS Course Curriculum - ${lecture.subject}*\n\n> ⚠️ Extensive class notes for this lecture segment are currently unavailable or were not extracted from the recorded audio.`
                   )}
                 </div>
               </div>

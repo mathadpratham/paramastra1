@@ -498,7 +498,7 @@ async function startServer() {
       try {
         console.log(`[GEMINI ART] Enhancing art prompt for ${subject} - ${topic}`);
         const response = await generateContentWithRetry(client, {
-          model: "gemini-2.5-flash",
+          model: "gemini-2.0-flash",
           contents: `You are an artistic director. Write a gorgeous 15-20 word image generation description (no text elements, no labels, no human faces unless relevant, purely photographic or artistic) for this BAMS educational lecture card about Subject: "${subject}", Topic: "${topic}". Recommended core theme: ${rawPromptBase}. Make it atmospheric and clear. Do not wrap in quotes or codeblocks.`,
         });
         if (response && response.text) {
@@ -655,75 +655,14 @@ async function startServer() {
       keyConcepts.push(`Interactive Q&A Session: Deconstructing recurring exam topics and preparing standard clinical case files.`);
     }
 
-    // 4. Generate Exam Alert and WhatsApp Context dynamically based on the actual topic (always generated with highly specific content)
-    let examAlert = "";
-    let whatsappContext = "";
+    // 4. Exam Alert and Homework Assignment strict authenticity guarantee
+    // Do NOT manufacture fake exam alerts or fake professor homework unless explicitly requested by the CR in targetInstructions
+    let examAlert: string | null = null;
+    let whatsappContext: string | null = null;
 
-    const lowerTopic = topic.toLowerCase();
-
-    if (subject === "Rachana Sharir") {
-      if (lowerTopic.includes("asthi") || lowerTopic.includes("bone") || lowerTopic.includes("osteo")) {
-        examAlert = "HIGH-YIELD THEORY ALERT: Classification of bones (Kapala, Ruchaka, Taruna, Valaya, Nalaka) is a classic 5-mark question in anatomy theory papers.";
-        whatsappContext = "Class Rep Note: Prof. Sharma requested everyone to sketch the bone classification diagram in the practical lab journals by Wednesday.";
-      } else if (lowerTopic.includes("marma") || lowerTopic.includes("vital")) {
-        examAlert = "MARMA SHARIR IMPORTANT: Study the classification of Marmas based on location, structure, and injury prognosis (Sadhya Pranahara, etc.) for a solid 10-mark question.";
-        whatsappContext = "Study Notice: Prepare the tabular comparison of Urddhva Jatrugata Marmas for the upcoming Monday session.";
-      } else if (lowerTopic.includes("peshi") || lowerTopic.includes("muscle")) {
-        examAlert = "EXAM ALERT: Structural classification of Peshi (muscles) and their numbering is high-yield for short theory questions.";
-        whatsappContext = "Class Rep Note: Read the clinical correlation of muscle attachments before the next anatomy lab.";
-      } else {
-        examAlert = `ANATOMY EXAM FOCUS: Review the structural landmarks and clinical significance of "${topic}". High-yield questions typically carry 5-10 marks in Rachana Sharir Paper 1.`;
-        whatsappContext = `Class Rep Note: Prof. Sharma requested everyone to review the anatomical charts for "${topic}" before the next revision session.`;
-      }
-    } else if (subject === "Kriya Sharir") {
-      if (lowerTopic.includes("pitta") || lowerTopic.includes("dosha") || lowerTopic.includes("vata") || lowerTopic.includes("kapha")) {
-        examAlert = "VIVA EXAM ADVISORY: Be fully prepared to list the five sub-types of Pitta (Pachaka, Ranjaka, Sadhaka, Alochaka, Bhrajaka) with precise physiological roles.";
-        whatsappContext = "Batch Study Notice: Sub-type somatic chart handouts are listed in the drive.";
-      } else if (lowerTopic.includes("dhatu") || lowerTopic.includes("conversion") || lowerTopic.includes("tissue")) {
-        examAlert = "PHYSIOLOGY THEORY HIGH-YIELD: The sequential conversion of Sapta Dhatu starting from Rasa to Shukra (Dhatu Parinama Vada) is a frequent 10-mark question.";
-        whatsappContext = "Class Rep Note: Study the Dhatu Posha Nyayas (Ksheera-Dadhi, Khale-Kapot, Kedari-Kulya) for Wednesday's interactive test.";
-      } else {
-        examAlert = `PHYSIOLOGY EXAM ADVISORY: Understanding the active functions, Sthana (locations), and symptoms of Vriddhi (increase) / Kshaya (decrease) of "${topic}" is critical for Kriya Sharir.`;
-        whatsappContext = `Batch Study Notice: Please review the physiology handouts for "${topic}" uploaded to the class sharing space.`;
-      }
-    } else if (subject === "Sanskritam Evum Ayurveda Ithihasa") {
-      if (lowerTopic.includes("noun") || lowerTopic.includes("declension") || lowerTopic.includes("table") || lowerTopic.includes("grammar")) {
-        examAlert = "SANSKRITAM ESSENTIALS: Memorize the declension tables of common nouns (Nara, Muni, Latah) for guaranteed scoring blocks in Sanskrit Paper-1.";
-        whatsappContext = "Weekly Homework: Handwrite the cases table for 'Ayurveda' and 'Asthi' in Sanskrit script for class submission.";
-      } else if (lowerTopic.includes("sandhi") || lowerTopic.includes("split")) {
-        examAlert = "SANSKRIT GRAMMAR FOCUS: sandhi rules (split/combination) of compound Ayurvedic terms represent 5-10 marks in the term-end exam.";
-        whatsappContext = "Class Rep Note: Practice writing 15 split examples of standard medicinal compound names before Friday.";
-      } else {
-        examAlert = `SANSKRITAM ASSESSMENT: Review translation rules and vocabulary related to "${topic}". Pay attention to grammar declensions and case endings.`;
-        whatsappContext = `Homework Notice: Practice spelling and writing Sanskrit roots for "${topic}" for Thursday's blackboard test.`;
-      }
-    } else if (subject === "Samhita Adyayan") {
-      if (lowerTopic.includes("ashtanga") || lowerTopic.includes("shloka") || lowerTopic.includes("charaka")) {
-        examAlert = "IMPORTANT THEORY SCORE: Recital of basic shlokas from Ashtanga Hridaya Sutrasthana Chapter 1 is highly prioritized under syllabus regulations.";
-        whatsappContext = "Samhita Study Plan: Practice reciting shlokas 1 to 5 from Ashtanga Hridaya before class viva sessions.";
-      } else {
-        examAlert = `SAMHITA CLASSICAL TEXT ALERT: Memorize foundational Sanskrit verses (Sutras) associated with "${topic}". Recitation is frequently tested in your oral viva examinations.`;
-        whatsappContext = `Study Assignment: Practice reciting the introductory shlokas for "${topic}" before the upcoming Samhita discussion hour.`;
-      }
-    } else if (subject === "Padartha Vijnana") {
-      if (lowerTopic.includes("karya") || lowerTopic.includes("cause") || lowerTopic.includes("pramana")) {
-        examAlert = "MARKS ALERT: Detailed concepts regarding Karya-Karana Vada (cause and effect) and Pramana validations represent 15 marks of theory questions.";
-        whatsappContext = "Study Assignment: Complete the summary comparison matrix for the six Padarthas before Thursday's lecture.";
-      } else {
-        examAlert = `PHILOSOPHICAL CONCEPT KEY: Review the epistemological validation and practical utility of "${topic}" in diagnostic methods. This is high-yield for long essay topics.`;
-        whatsappContext = `Group Homework: Prepare a conceptual list comparing classical perspectives on "${topic}" with modern logical systems.`;
-      }
-    } else {
-      examAlert = `GENERAL EXAM DIRECTIVE: Make sure to review the core concepts in this lecture on "${topic}". Typical questions in ${subject} count for 5-10 marks.`;
-      whatsappContext = targetInstructions 
-        ? `Class Representative Directive: ${targetInstructions}`
-        : `Advisory from Class Rep: Please read the textbook files associated with "${topic}" before exams.`;
-    }
-
-    // Incorporate targetInstructions explicitly if they are provided, overriding or amending as requested
     if (targetInstructions) {
       whatsappContext = `Class Representative Note: ${targetInstructions} (Relating to: ${topic})`;
-      examAlert = `${examAlert} • Custom focus request: "${targetInstructions}".`;
+      examAlert = `Custom focus request: "${targetInstructions}".`;
     }
 
     const rawPrompt = getFallbackArtPrompt(subject, topic);
@@ -993,8 +932,10 @@ Depending on the canonical commentaries of Sushruta and Charaka, the lecture bro
 
       // Process and cache the raw audio Base64 directly into the server binary router!
       if (lecture.audioBase64 && lecture.audioBase64.trim().length > 0) {
+        const audioMime = lecture.mimeType || "audio/webm";
         freshLecture.audioUrl = `/api/audio/${id}`;
-        saveAudio(id, lecture.audioBase64, lecture.mimeType || "audio/webm");
+        freshLecture.mimeType = audioMime;
+        saveAudio(id, lecture.audioBase64, audioMime);
       }
 
       // Stripping huge audioBase64 to keep db_lectures.json tiny and incredibly performant
@@ -1684,20 +1625,10 @@ Depending on the canonical commentaries of Sushruta and Charaka, the lecture bro
       const client = getGenAI();
 
       if (!client) {
-        // High fidelity BAMS Ayurveda simulation fallback
-        console.log("Serving high-fidelity Ayurveda simulation fallback matching target class selection");
-
-        let activeTranscript = speechTranscript || "";
-        if (!activeTranscript || activeTranscript.trim().length === 0) {
-          if (targetSubject && targetTopic) {
-            activeTranscript = `नमस्कार students, today we are reviewing the syllabus topic: "${targetTopic}" under ${targetSubject}. We will cover the core principles, syllabus-critical Sanskrit shlokas, and key classifications.`;
-          } else {
-            activeTranscript = "Ayurvedic study revision session: We are evaluating BAMS syllabus guidelines, shloka recitations, and key exam concepts.";
-          }
-        }
-
-        const fallback = generateFallbackResponse(activeTranscript, targetSubject, targetTopic, targetInstructions, originalDurationSec);
-        return res.json(fallback);
+        console.warn("[GEMINI API] GEMINI_API_KEY is not configured on server.");
+        return res.status(503).json({
+          error: "GEMINI_API_KEY is not configured on the server. Please add your GEMINI_API_KEY to environment variables to enable live audio transcription."
+        });
       }
 
       let cleanMimeType = String(mimeType || "audio/webm").split(";")[0].trim().toLowerCase();
@@ -1866,36 +1797,16 @@ Respond ONLY in JSON matching the response schema. Primary Language hint: ${lang
         });
 
       } catch (error: any) {
-        console.warn("Gemini Error during transcription pipeline. Activating curriculum failover template...", error);
-        
-        // Serve a high-fidelity Ayurveda simulation fallback aligned with active state context
-        let activeTranscript = speechTranscript || "";
-        if (!activeTranscript || activeTranscript.trim().length === 0) {
-          if (targetSubject && targetTopic) {
-            activeTranscript = `नमस्कार students, today we are reviewing the syllabus topic: "${targetTopic}" under ${targetSubject}. We will cover the core principles, syllabus-critical Sanskrit shlokas, and key classifications.`;
-          } else {
-            activeTranscript = "Ayurvedic study revision session: We are evaluating BAMS syllabus guidelines, shloka recitations, and key exam concepts.";
-          }
-        }
-        const fallback = generateFallbackResponse(activeTranscript, targetSubject, targetTopic, targetInstructions, originalDurationSec);
-        res.json(fallback);
+        console.error("[GEMINI ERROR] Transcription pipeline failed:", error);
+        return res.status(500).json({ 
+          error: `AI transcription failed: ${error.message || "Could not analyze lecture audio"}. Please check server connectivity or try again.` 
+        });
       }
     } catch (err: any) {
-      console.error("[CRITICAL] Error in /api/analyze transcription pipeline:", err);
-      
-      // Serve a high-fidelity Ayurveda simulation fallback aligned with active state context
-      // This guarantees 100% resilience and prevents "AI processing failed" errors on the frontend!
-      const { speechTranscript, targetSubject, targetTopic, targetInstructions, originalDurationSec } = req.body || {};
-      let activeTranscript = speechTranscript || "";
-      if (!activeTranscript || activeTranscript.trim().length === 0) {
-        if (targetSubject && targetTopic) {
-          activeTranscript = `नमस्कार students, today we are reviewing the syllabus topic: "${targetTopic}" under ${targetSubject}. We will cover the core principles, syllabus-critical Sanskrit shlokas, and key classifications.`;
-        } else {
-          activeTranscript = "Ayurvedic study revision session: We are evaluating BAMS syllabus guidelines, shloka recitations, and key exam concepts.";
-        }
-      }
-      const fallback = generateFallbackResponse(activeTranscript, targetSubject, targetTopic, targetInstructions, originalDurationSec);
-      res.json(fallback);
+      console.error("[CRITICAL ERROR] Error in /api/analyze transcription pipeline:", err);
+      return res.status(500).json({ 
+        error: `Server audio analysis error: ${err.message || "An unexpected error occurred during processing"}` 
+      });
     }
   });
 

@@ -254,6 +254,7 @@ export function CRDashboardView({ onPublishLecture, lecturesByDay, showToast, on
   const startedAtRef = useRef<number>(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const recognitionRef = useRef<any>(null);
+  const realtimeTranscriptRef = useRef<string>("");
 
   useEffect(() => {
     return () => {
@@ -351,6 +352,7 @@ export function CRDashboardView({ onPublishLecture, lecturesByDay, showToast, on
     setError(null);
     setElapsed(0);
     setRealtimeTranscript("");
+    realtimeTranscriptRef.current = "";
     setHasPublished(false);
     maxVolumeObservedRef.current = 0;
     stopAllTracks();
@@ -415,7 +417,7 @@ export function CRDashboardView({ onPublishLecture, lecturesByDay, showToast, on
       });
     } catch (e) {}
 
-    const calculatedDuration = audioDuration > 0 ? Math.round(audioDuration) : (elapsed || 60);
+    const calculatedDuration = elapsed > 0 ? elapsed : (audioDuration > 0 && Number.isFinite(audioDuration) ? Math.round(audioDuration) : 60);
 
     const newTask: BackgroundTask = {
       id: taskId,
@@ -535,6 +537,7 @@ export function CRDashboardView({ onPublishLecture, lecturesByDay, showToast, on
           isDemo: Boolean(result.isDemo),
           audioUrl,
           audioBase64,
+          mimeType: blob.type || "audio/webm",
           imageUrl: result.imageUrl || undefined,
           timetableClassId: targetClassId,
         };
@@ -765,7 +768,7 @@ export function CRDashboardView({ onPublishLecture, lecturesByDay, showToast, on
           subjectName,
           topicName,
           selectedDay,
-          realtimeTranscript,
+          realtimeTranscriptRef.current,
           selectedClass?.id,
           selectedClass?.instructions
         );
@@ -820,7 +823,9 @@ export function CRDashboardView({ onPublishLecture, lecturesByDay, showToast, on
               interimTranscript += event.results[i][0].transcript;
             }
           }
-          setRealtimeTranscript(finalTranscript + interimTranscript);
+          const fullText = finalTranscript + interimTranscript;
+          setRealtimeTranscript(fullText);
+          realtimeTranscriptRef.current = fullText;
         };
 
         recognition.onerror = (event: any) => {
@@ -828,7 +833,14 @@ export function CRDashboardView({ onPublishLecture, lecturesByDay, showToast, on
         };
 
         recognition.onend = () => {
-          console.log("Speech recognition stopped.");
+          console.log("Speech recognition ended.");
+          // Auto-restart continuous speech recognition if actively recording
+          if (recorderRef.current && recorderRef.current.state === "recording") {
+            try {
+              recognition.start();
+              console.log("[SpeechRecognition] Auto-restarted speech transcription listener.");
+            } catch (e) {}
+          }
         };
 
         recognitionRef.current = recognition;
