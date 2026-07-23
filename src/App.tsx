@@ -204,6 +204,15 @@ export default function App() {
     }, 120);
   };
 
+  // Periodic 60s ticker to automatically update real-time relative time display (e.g. Just now -> 1m ago -> 2h ago -> 3d ago) live
+  const [, setTimeTick] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeTick((t) => t + 1);
+    }, 60000);
+    return () => clearInterval(timer);
+  }, []);
+
   const getBookmarkedIds = (): Set<string> => {
     try {
       const stored = localStorage.getItem("paramastra_bookmarked_ids");
@@ -643,7 +652,8 @@ export default function App() {
       dayName: destDay,
       imageUrl: finalImageUrl,
       id: (newLecture as any).id || `lec-${Date.now()}`,
-      timeAgo: "1m ago",
+      createdAt: (newLecture as any).createdAt || new Date().toISOString(),
+      timeAgo: "Just now",
       saves: Math.floor(Math.random() * 20) + 5,
       saved: false,
       dateStr: getIndianFormattedDateOfWeekday(destDay),

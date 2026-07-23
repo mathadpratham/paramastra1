@@ -5,6 +5,7 @@ export type Lecture = {
   professorHandle: string;
   topic: string;
   timeAgo: string;
+  createdAt?: string | number;
   duration: string;
   coverHue?: string;
   keyConcepts: string[];
@@ -27,6 +28,90 @@ export type Lecture = {
   timetableClassId?: string;
   classNotes?: string | null;
 };
+
+export function formatTimeAgo(lectureOrTimestamp: any): string {
+  if (!lectureOrTimestamp) return "Just now";
+
+  let timestampMs: number | null = null;
+
+  if (typeof lectureOrTimestamp === "object") {
+    // 1. Check explicit createdAt
+    if (lectureOrTimestamp.createdAt) {
+      const t = new Date(lectureOrTimestamp.createdAt).getTime();
+      if (!isNaN(t) && t > 0) timestampMs = t;
+    }
+
+    // 2. Extract epoch timestamp from id (e.g., lec-1784356889516 or task-1784356889516)
+    if (!timestampMs && lectureOrTimestamp.id) {
+      const match = String(lectureOrTimestamp.id).match(/(\d{10,13})/);
+      if (match) {
+        const parsed = parseInt(match[1], 10);
+        if (parsed > 1577836800000 && parsed < 1893456000000) {
+          timestampMs = parsed;
+        }
+      }
+    }
+
+    // 3. Extract timestamp from dateStr (e.g., "18 Jul 2026")
+    if (!timestampMs && lectureOrTimestamp.dateStr) {
+      const d = new Date(lectureOrTimestamp.dateStr).getTime();
+      if (!isNaN(d) && d > 0) timestampMs = d;
+    }
+
+    // 4. Fallback to existing timeAgo string if not the static default "1m ago"
+    if (!timestampMs && lectureOrTimestamp.timeAgo && lectureOrTimestamp.timeAgo !== "1m ago") {
+      return lectureOrTimestamp.timeAgo;
+    }
+  } else if (typeof lectureOrTimestamp === "number") {
+    timestampMs = lectureOrTimestamp;
+  } else if (typeof lectureOrTimestamp === "string") {
+    const d = new Date(lectureOrTimestamp).getTime();
+    if (!isNaN(d) && d > 0) {
+      timestampMs = d;
+    } else if (lectureOrTimestamp !== "1m ago") {
+      return lectureOrTimestamp;
+    }
+  }
+
+  if (!timestampMs) {
+    return "Just now";
+  }
+
+  const now = Date.now();
+  const diffSec = Math.floor((now - timestampMs) / 1000);
+
+  if (diffSec < 45) {
+    return "Just now";
+  }
+
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) {
+    return `${diffMin}m ago`;
+  }
+
+  const diffHours = Math.floor(diffMin / 60);
+  if (diffHours < 24) {
+    return `${diffHours}h ago`;
+  }
+
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays < 7) {
+    return `${diffDays}d ago`;
+  }
+
+  const diffWeeks = Math.floor(diffDays / 7);
+  if (diffWeeks < 4) {
+    return `${diffWeeks}w ago`;
+  }
+
+  const diffMonths = Math.floor(diffDays / 30);
+  if (diffMonths < 12) {
+    return `${diffMonths}mo ago`;
+  }
+
+  const diffYears = Math.floor(diffDays / 365);
+  return `${diffYears}y ago`;
+}
 
 export type AppState = {
   route: "landing" | "feed" | "library" | "tutor" | "profile" | "cr" | "diary" | "roster";

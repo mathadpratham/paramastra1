@@ -927,6 +927,7 @@ Depending on the canonical commentaries of Sushruta and Charaka, the lecture bro
       const freshLecture = {
         ...lecture,
         id,
+        createdAt: lecture.createdAt || new Date().toISOString(),
         timeAgo: lecture.timeAgo || "Just now",
       };
 

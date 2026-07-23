@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import type { Lecture } from "../types";
+import { formatTimeAgo } from "../types";
 import { SUBJECT_COVERS } from "../data/lectures";
 import { getApiUrl } from "../config";
 import {
@@ -566,7 +567,7 @@ export function FeedCard({ lecture, onSaveToggle, onDeleteClick, showToast, onUp
               </span>
             </div>
             <span className="text-[11px] font-semibold text-muted-foreground">
-              {lecture.subject} • {lecture.timeAgo}
+              {lecture.subject} • {formatTimeAgo(lecture)}
             </span>
           </div>
         </div>

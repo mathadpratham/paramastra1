@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { weeklySchedule, SUBJECT_COVERS, getDynamicClassStatus, getIndianDate } from "../data/lectures";
 import { BookOpen, GraduationCap, X, ChevronLeft, ChevronRight, Play, Pause, Calendar, Award, Sparkles, MessageCircle, ArrowRight } from "lucide-react";
 import type { Lecture } from "../types";
-import { isSubjectMatching, matchLecturesToClasses } from "../types";
+import { isSubjectMatching, matchLecturesToClasses, formatTimeAgo } from "../types";
 
 type StoriesProps = {
   onClassClick?: (subjectsName: string) => void;
@@ -534,7 +534,7 @@ export function Stories({ onClassClick, activeDay, setActiveDay, lecturesByDay, 
                       </span>
                     </div>
                     <p className="text-[10px] text-muted-foreground font-semibold mt-1">
-                      {activeClass.subject} • {activeClass.lecture ? activeClass.lecture.timeAgo : `${activeClass.time} today`}
+                      {activeClass.subject} • {activeClass.lecture ? formatTimeAgo(activeClass.lecture) : `${activeClass.time} today`}
                     </p>
                   </div>
                 </div>

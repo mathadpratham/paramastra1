@@ -23,7 +23,7 @@ import {
   Trash2,
 } from "lucide-react";
 import type { Lecture } from "../types";
-import { isSubjectMatching, matchLecturesToClasses } from "../types";
+import { isSubjectMatching, matchLecturesToClasses, formatTimeAgo } from "../types";
 import { weeklySchedule, TimetableClass, getIndianDate } from "../data/lectures";
 import { getApiUrl } from "../config";
 
@@ -1527,7 +1527,7 @@ export function CRDashboardView({ onPublishLecture, lecturesByDay, showToast, on
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-bold text-foreground">{item.topic}</div>
                   <div className="text-[11px] text-muted-foreground font-medium">
-                    {item.subject} • {item.timeAgo}
+                    {item.subject} • {formatTimeAgo(item)}
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
